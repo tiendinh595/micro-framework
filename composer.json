@@ -1,0 +1,11 @@
+{
+    "name": "dinhvt/framework",
+    "description": "micro framework php",
+    "authors": [
+        {
+            "name": "Tien Dinh",
+            "email": "tiendinh595@gmail.com"
+        }
+    ],
+    "require": {}
+}
