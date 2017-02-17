@@ -9,12 +9,15 @@
 
 namespace app\Controllers;
 
+use core\Request;
 use core\View;
 
 class HomeController
 {
-    function index()
+    function index(Request $request)
     {
+        echo '<pre>';
+        print_r($request);
         echo 'index method';
     }
 

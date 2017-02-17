@@ -7,7 +7,30 @@
  */
 
 $router->get('/', function () {
-   View::render('home');
+        try {
+        $dns = 'mysql:host=localhost;dbname=caplayeuthuong;charset=utf8';
+        $username = 'root';
+        $password = '';
+        $opt = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ];
+        $pdo = new PDO($dns, $username, $password, $opt);
+
+        $stmt = $pdo->prepare('select id, name from tbl_posts where id = :id');
+//        $stmt->bindValue('id', '24', PDO::PARAM_INT);
+        $id = 24;
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $data = $stmt->fetchAll();
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
 })->middleware('admin');
 
 $router->get(['url'=>'/abc', 'middleware'=>'admin'], function () {
@@ -28,9 +51,4 @@ $router->group('/admin', function () use ($router) {
     });
 })->middleware('admin');
 
-$router->get('/test', function() {
-	$a = 'vu ';
-	$b = 'tien dinh';
-
-	echo $a,'|',$b;
-});
+$router->get('/index', 'HomeController@index');

@@ -5,6 +5,7 @@ include './core/AutoLoad.php';
 $router = new core\Router();
 require_once './app/routes.php';
 
+\core\Request::init();
 \core\View::setDirView(DIR_VIEW);
 
 try {
