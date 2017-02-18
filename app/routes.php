@@ -7,7 +7,7 @@
  */
 
 $router->get('/', function () {
-        try {
+    try {
         $dns = 'mysql:host=localhost;dbname=caplayeuthuong;charset=utf8';
         $username = 'root';
         $password = '';
@@ -17,13 +17,13 @@ $router->get('/', function () {
         ];
         $pdo = new PDO($dns, $username, $password, $opt);
 
-        $stmt = $pdo->prepare('select id, name from tbl_posts where id = :id');
+        $stmt = $pdo->prepare('select id, name from tbl_posts where id > :id');
 //        $stmt->bindValue('id', '24', PDO::PARAM_INT);
         $id = 24;
         $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        $data = $stmt->fetchAll();
+        $data = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         echo '<pre>';
         print_r($data);
         echo '</pre>';
@@ -33,12 +33,12 @@ $router->get('/', function () {
     }
 })->middleware('admin');
 
-$router->get(['url'=>'/abc', 'middleware'=>'admin'], function () {
+$router->get(['url' => '/abc', 'middleware' => 'admin'], function () {
     echo 'admin page';
 });
 
-$router->get('/news/{id}', function($id) {
-    echo 'news '. $id;
+$router->get('/news/{id}', function ($id) {
+    echo 'news ' . $id;
 });
 $router->get('/post/{slug}', 'HomeController@view');
 
@@ -52,3 +52,6 @@ $router->group('/admin', function () use ($router) {
 })->middleware('admin');
 
 $router->get('/index', 'HomeController@index');
+$router->get('/cookie', function () {
+
+});

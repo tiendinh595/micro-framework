@@ -105,7 +105,7 @@ class Router
         $curent_uri = preg_replace("/(\?|&).+/", "", $curent_uri);
 
         if (isset($this->routes[$curent_uri])) {
-            return $this->executeMethod($this->routes[$curent_uri]['action'], [], $this->routes[$curent_uri]['middleware']);
+            return $this->executeRouter($this->routes[$curent_uri], []);
         }
 
         foreach ($this->routes as $route) {
@@ -113,16 +113,13 @@ class Router
             @preg_match('/' . $route['url'] . '/', $curent_uri, $args);
             if (count($args)) {
 
-                if (!$this->validateMethodRequest($route['method']))
-                    throw new \Exception("Not allow method {$_SERVER['REQUEST_METHOD']}");
-
                 unset($args[0]);
                 foreach ($args as $param) { //check item param is valid (xx/xx is invalid, xx is valid)
                     if (count(explode('/', $param)) > 1) {
                         call_user_func_array($this->notFound, [$curent_uri]);
                     }
                 }
-                return $this->executeMethod($route['action'], $args);
+                return $this->executeRouter($route, $args);
             }
         }
 
@@ -140,25 +137,28 @@ class Router
      * @return mixed|null
      * @throws \Exception
      */
-    private function executeMethod($action, $args = [], $middleware)
+    private function executeRouter($router, $args = [])
     {
+        if (!$this->validateMethodRequest($router['method']))
+            throw new \Exception("Not allow method {$_SERVER['REQUEST_METHOD']}");
+
         //check action is a closure function
-        if (is_callable($action)) {
-            if ($middleware != '') {
-                return Middleware::executeMiddleware($middleware, function () use ($action, $args) {
-                    call_user_func_array($action, $args);
+        if (is_callable($router['action'])) {
+            if ($router['middleware'] != '') {
+                return Middleware::executeMiddleware($router['middleware'], function () use ($router, $args) {
+                    call_user_func_array($router['action'], $args);
                 });
             }
-            return call_user_func_array($action, $args);
+            return call_user_func_array($router['action'], $args);
         }
 
-        $params = explode('@', $action);
+        $params = explode('@', $router['action']);
         if (count($params) == 2) {
             $className = 'app\\Controllers\\' . $params[0];
             $object = new $className;
             if (method_exists($object, $params[1])) {
-                if ($middleware != '') {
-                    return Middleware::executeMiddleware($middleware, function () use ($object, $params, $args) {
+                if ($router['middleware'] != '') {
+                    return Middleware::executeMiddleware($router['middleware'], function () use ($object, $params, $args) {
                         call_user_func_array([$object, $params[1]], $args);
                     });
                 }
